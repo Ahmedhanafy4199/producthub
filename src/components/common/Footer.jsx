@@ -33,7 +33,7 @@ const Footer = () => {
               API Docs <ExternalLink className="w-3 h-3" />
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/Ahmedhanafy4199/producthub"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
