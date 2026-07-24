@@ -1,0 +1,174 @@
+{
+  "info": {
+    "_postman_id": "producthub-dummyjson-2024",
+    "name": "ProductHub API Collection",
+    "description": "Complete API collection for the ProductHub web application.\nAPI Provider: DummyJSON (https://dummyjson.com)\nDocumentation: https://dummyjson.com/docs\n\nTest credentials:\n  username: emilys\n  password: emilyspass",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://dummyjson.com",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT access token - populated automatically after Login request"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints - Login, Register, and Profile",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"emilys\",\n  \"password\": \"emilyspass\",\n  \"expiresInMins\": 60\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with username + password. Returns JWT accessToken and user details.\n\nTest credentials: emilys / emilyspass"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) {",
+                  "  pm.collectionVariables.set('token', json.accessToken);",
+                  "  pm.test('Login successful - token saved', () => pm.expect(json.accessToken).to.be.a('string'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"username\": \"johndoe99\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/add",
+              "host": ["{{base_url}}"],
+              "path": ["users", "add"]
+            },
+            "description": "Register a new user. DummyJSON adds user to mock DB and returns the new user object with an assigned ID."
+          }
+        },
+        {
+          "name": "Get Authenticated User Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Fetch the currently authenticated user's profile.\nRequires a valid JWT Bearer token in the Authorization header.\nRun Login first to populate the {{token}} variable."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Product listing, search, and detail endpoints",
+      "item": [
+        {
+          "name": "Get All Products (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products?limit=12&skip=0&sortBy=id&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "limit", "value": "12", "description": "Number of products per page" },
+                { "key": "skip", "value": "0", "description": "Number of products to skip (offset)" },
+                { "key": "sortBy", "value": "id", "description": "Field to sort by: id, title, price, rating" },
+                { "key": "order", "value": "asc", "description": "Sort order: asc or desc" }
+              ]
+            },
+            "description": "Fetch a paginated list of all products.\nSupports sorting by: id, title, price, rating, stock, discountPercentage"
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products/search?q=phone&limit=12&skip=0",
+              "host": ["{{base_url}}"],
+              "path": ["products", "search"],
+              "query": [
+                { "key": "q", "value": "phone", "description": "Search query term (searches product title)" },
+                { "key": "limit", "value": "12" },
+                { "key": "skip", "value": "0" }
+              ]
+            },
+            "description": "Search products by title. The 'q' parameter is matched against product titles."
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            },
+            "description": "Fetch full details of a single product including reviews, images, specs, return policy, and warranty."
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products/categories",
+              "host": ["{{base_url}}"],
+              "path": ["products", "categories"]
+            },
+            "description": "Returns an array of all available product categories with slug and name fields."
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products/category/smartphones?limit=12&skip=0&sortBy=price&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["products", "category", "smartphones"],
+              "query": [
+                { "key": "limit", "value": "12" },
+                { "key": "skip", "value": "0" },
+                { "key": "sortBy", "value": "price" },
+                { "key": "order", "value": "asc" }
+              ]
+            },
+            "description": "Fetch products filtered by a specific category. Supports pagination and sorting.\nExample categories: smartphones, laptops, fragrances, skincare, groceries, furniture"
+          }
+        }
+      ]
+    }
+  ]
+}
