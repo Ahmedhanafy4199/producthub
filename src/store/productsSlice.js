@@ -22,7 +22,34 @@ export const loadProducts = createAsyncThunk(
       const skip = (page - 1) * PAGE_SIZE;
       let data;
       if (query) {
-        data = await searchProducts(query, PAGE_SIZE, skip);
+        // Fetch matching search results from API (limit=0 to retrieve all for accurate title filtering)
+        const searchData = await searchProducts(query, 0, 0);
+        const cleanQuery = query.trim().toLowerCase();
+        let filteredProducts = (searchData.products || []).filter((product) =>
+          product.title ? product.title.toLowerCase().includes(cleanQuery) : false
+        );
+
+        if (category) {
+          filteredProducts = filteredProducts.filter(
+            (product) => product.category === category
+          );
+        }
+
+        if (sortBy && sortBy !== 'id') {
+          filteredProducts.sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            if (valA < valB) return order === 'asc' ? -1 : 1;
+            if (valA > valB) return order === 'asc' ? 1 : -1;
+            return 0;
+          });
+        }
+
+        const total = filteredProducts.length;
+        const paginatedProducts = filteredProducts.slice(skip, skip + PAGE_SIZE);
+        data = { products: paginatedProducts, total };
       } else if (category) {
         data = await fetchProductsByCategory(category, PAGE_SIZE, skip, sortBy, order);
       } else {
