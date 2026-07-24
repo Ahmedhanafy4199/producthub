@@ -65,6 +65,27 @@ describe('cartSlice', () => {
     expect(state.items).toEqual([]);
   });
 
+  describe('auth extraReducers', () => {
+    it('loads correct user cart on auth/login/fulfilled', () => {
+      const mockUser = { id: 42, username: 'testuser' };
+      const savedCart = [{ ...item1, quantity: 3 }];
+      localStorage.setItem('producthub_cart_42', JSON.stringify(savedCart));
+
+      const state = cartReducer(
+        { items: [] },
+        { type: 'auth/login/fulfilled', payload: mockUser }
+      );
+      expect(state.items).toEqual(savedCart);
+      localStorage.removeItem('producthub_cart_42');
+    });
+
+    it('empties the cart on auth/logout', () => {
+      const stateWithItems = { items: [item1, item2] };
+      const state = cartReducer(stateWithItems, { type: 'auth/logout' });
+      expect(state.items).toEqual([]);
+    });
+  });
+
   describe('Cart Selectors', () => {
     const cartState = {
       cart: {

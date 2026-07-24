@@ -45,6 +45,22 @@ const saveLocalUser = (userData) => {
  * checks local storage fallback.
  */
 export const loginUser = async (username, password) => {
+  // Intercept built-in admin demo credentials
+  if (username?.trim().toLowerCase() === 'admin' && password === 'admin123') {
+    const mockToken = `mock-jwt-admin-${Date.now()}`;
+    return {
+      id: 9999,
+      username: 'admin',
+      email: 'admin@example.com',
+      firstName: 'Admin',
+      lastName: 'User',
+      gender: 'neutral',
+      image: 'https://dummyjson.com/icon/emilys/128',
+      accessToken: mockToken,
+      token: mockToken,
+    };
+  }
+
   try {
     // 1. Try real API login with DummyJSON
     const data = await apiFetch('/auth/login', {

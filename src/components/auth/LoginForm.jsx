@@ -80,7 +80,7 @@ const LoginForm = () => {
                 autoComplete="username"
                 value={form.username}
                 onChange={handleChange}
-                placeholder="e.g. emilys"
+                placeholder="e.g. admin"
                 className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
               />
             </div>
@@ -114,7 +114,7 @@ const LoginForm = () => {
 
             {/* Demo hint */}
             <p className="text-xs text-slate-400 bg-white/5 rounded-xl px-3 py-2">
-              Demo credentials: <strong className="text-blue-400">emilys</strong> / <strong className="text-blue-400">emilyspass</strong>
+              Demo credentials: <strong className="text-blue-400">admin</strong> / <strong className="text-blue-400">admin123</strong>
             </p>
 
             {/* Submit */}

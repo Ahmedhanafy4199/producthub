@@ -4,12 +4,18 @@
  * Cart state is persisted in localStorage via cartPersistenceMiddleware in store/index.js
  */
 import { createSlice } from '@reduxjs/toolkit';
+import { getUser } from '../utils/cache';
 
-/** Load saved cart items from localStorage on app startup */
+/** Load saved cart items from localStorage on app startup (based on cached user) */
 const loadSavedCart = () => {
   try {
-    const raw = localStorage.getItem('producthub_cart');
-    return raw ? JSON.parse(raw) : [];
+    const user = getUser();
+    if (user) {
+      const userId = user.id || user.username;
+      const raw = localStorage.getItem(`producthub_cart_${userId}`);
+      return raw ? JSON.parse(raw) : [];
+    }
+    return [];
   } catch {
     return [];
   }
@@ -59,6 +65,24 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.items = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase('auth/login/fulfilled', (state, action) => {
+        const user = action.payload;
+        if (user) {
+          const userId = user.id || user.username;
+          try {
+            const raw = localStorage.getItem(`producthub_cart_${userId}`);
+            state.items = raw ? JSON.parse(raw) : [];
+          } catch {
+            state.items = [];
+          }
+        }
+      })
+      .addCase('auth/logout', (state) => {
+        state.items = [];
+      });
   },
 });
 

@@ -13,9 +13,14 @@ export const BASE_URL = 'https://dummyjson.com';
  */
 const apiFetch = async (path, options = {}) => {
   const token = getToken();
+  
+  // Only attach auth token for endpoints that require it (e.g., /auth/me)
+  // Public endpoints like /products do not need it, allowing them to be cached by CDNs/browsers.
+  const requiresAuth = path.startsWith('/auth/') && path !== '/auth/login';
+
   const headers = {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(token && requiresAuth ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 

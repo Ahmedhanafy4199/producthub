@@ -102,6 +102,23 @@ describe('productsSlice', () => {
       expect(state.sortBy).toBe('price');
       expect(state.order).toBe('desc');
     });
+
+    it('resets all filters to defaults on auth/logout', () => {
+      const stateWithFilters = {
+        ...initialState,
+        searchQuery: 'phone',
+        selectedCategory: 'smartphones',
+        sortBy: 'price',
+        order: 'desc',
+        currentPage: 3,
+      };
+      const state = productsReducer(stateWithFilters, { type: 'auth/logout' });
+      expect(state.searchQuery).toBe('');
+      expect(state.selectedCategory).toBe('');
+      expect(state.sortBy).toBe('id');
+      expect(state.order).toBe('asc');
+      expect(state.currentPage).toBe(1);
+    });
   });
 
   describe('Async Thunk: loadProducts', () => {

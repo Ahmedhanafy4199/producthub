@@ -175,6 +175,14 @@ const productsSlice = createSlice({
     builder
       .addCase(loadCategories.fulfilled, (state, action) => {
         state.categories = action.payload;
+      })
+      // ── Reset filters on Logout ──
+      .addCase('auth/logout', (state) => {
+        state.selectedCategory = '';
+        state.searchQuery = '';
+        state.sortBy = 'id';
+        state.order = 'asc';
+        state.currentPage = 1;
       });
   },
 });

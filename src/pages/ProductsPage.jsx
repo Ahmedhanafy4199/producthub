@@ -59,6 +59,23 @@ const ProductsPage = () => {
   // ── Step 2: Write URL params whenever Redux filter state changes (skip before hydrated) ──
   useEffect(() => {
     if (!hydrated) return;
+
+    // Check current values in URL to avoid redundant updates
+    const currentQ = searchParams.get('q') || '';
+    const currentCategory = searchParams.get('category') || '';
+    const currentSortBy = searchParams.get('sortBy') || 'id';
+    const currentOrder = searchParams.get('order') || 'asc';
+    const currentPageStr = searchParams.get('page') || '1';
+
+    const hasMismatch =
+      searchQuery !== currentQ ||
+      selectedCategory !== currentCategory ||
+      sortBy !== currentSortBy ||
+      order !== currentOrder ||
+      String(currentPage) !== currentPageStr;
+
+    if (!hasMismatch) return;
+
     const params = {};
     if (searchQuery)      params.q        = searchQuery;
     if (selectedCategory) params.category = selectedCategory;
@@ -66,7 +83,7 @@ const ProductsPage = () => {
     if (order !== 'asc')  params.order    = order;
     if (currentPage > 1)  params.page     = String(currentPage);
     setSearchParams(params, { replace: true });
-  }, [searchQuery, selectedCategory, sortBy, order, currentPage, hydrated, setSearchParams]);
+  }, [searchQuery, selectedCategory, sortBy, order, currentPage, hydrated, searchParams, setSearchParams]);
 
   // ── Step 3: Fetch products — only after hydration is done ──
   // On refresh: waits for Step 1 to restore filter state, then fetches with correct values.

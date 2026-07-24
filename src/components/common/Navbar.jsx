@@ -88,17 +88,18 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
 
             {/* Cart Icon */}
             {isAuthenticated && (
-              <button
-                className="relative p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              <Link
+                to="/cart"
+                className="relative p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 block"
                 aria-label="Cart"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-4 px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-4 px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-sm animate-pulse-subtle">
                     {cartCount > 9 ? '9+' : cartCount}
                   </span>
                 )}
-              </button>
+              </Link>
             )}
 
             {/* Auth Section - Desktop User Dropdown or Login/Register buttons */}

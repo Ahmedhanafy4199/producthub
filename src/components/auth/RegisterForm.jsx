@@ -161,7 +161,7 @@ const RegisterForm = () => {
                 name="firstName"
                 value={form.firstName}
                 onChange={handleChange}
-                placeholder="John"
+                placeholder="Ahmed"
               />
 
               <Field
@@ -170,7 +170,7 @@ const RegisterForm = () => {
                 name="lastName"
                 value={form.lastName}
                 onChange={handleChange}
-                placeholder="Doe"
+                placeholder="Hanafy"
               />
 
             </div>
@@ -182,7 +182,7 @@ const RegisterForm = () => {
               type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="john@example.com"
+              placeholder="ahmed@example.com"
             />
 
             <Field
@@ -191,7 +191,7 @@ const RegisterForm = () => {
               name="username"
               value={form.username}
               onChange={handleChange}
-              placeholder="johndoe99"
+              placeholder="ahmed123"
             />
 
             {/* Password */}
