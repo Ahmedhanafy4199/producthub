@@ -30,18 +30,26 @@ const ProductFilter = () => {
     }
   }, [dispatch, categories.length]);
 
-  // Debounce: wait 400ms after user stops typing before dispatching
+  // Sync inputValue when Redux searchQuery changes externally (e.g. URL hydration on refresh)
   useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce: wait 400ms after user stops typing before dispatching
+  // Skip dispatch if inputValue already equals the Redux state (avoids loop on URL hydration)
+  useEffect(() => {
+    if (inputValue === searchQuery) return;
     const timer = setTimeout(() => {
       dispatch(setSearchQuery(inputValue));
     }, 400);
     return () => clearTimeout(timer);
-  }, [inputValue, dispatch]);
+  }, [inputValue, dispatch, searchQuery]);
 
   const handleClear = () => {
     setInputValue('');
     dispatch(setSearchQuery(''));
   };
+
 
   return (
     <div className="flex flex-col gap-4">

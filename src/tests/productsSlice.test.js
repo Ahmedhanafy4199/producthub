@@ -10,6 +10,7 @@ import productsReducer, {
   setPage,
   clearSelectedProduct,
   clearError,
+  syncFiltersFromUrl,
   loadProducts,
   loadProductById,
   loadCategories,
@@ -79,6 +80,27 @@ describe('productsSlice', () => {
     it('clearError sets error to null', () => {
       const state = productsReducer({ ...initialState, error: 'Failed' }, clearError());
       expect(state.error).toBeNull();
+    });
+
+    it('syncFiltersFromUrl restores all filters at once without resetting page', () => {
+      const state = productsReducer(
+        initialState,
+        syncFiltersFromUrl({ query: 'laptop', category: 'laptops', sortBy: 'price', order: 'desc', page: 3 })
+      );
+      expect(state.searchQuery).toBe('laptop');
+      expect(state.selectedCategory).toBe('laptops');
+      expect(state.sortBy).toBe('price');
+      expect(state.order).toBe('desc');
+      expect(state.currentPage).toBe(3);
+    });
+
+    it('syncFiltersFromUrl only updates provided fields (partial update)', () => {
+      const stateWithSortBy = { ...initialState, sortBy: 'price', order: 'desc' };
+      const state = productsReducer(stateWithSortBy, syncFiltersFromUrl({ query: 'phone' }));
+      expect(state.searchQuery).toBe('phone');
+      // unchanged fields remain
+      expect(state.sortBy).toBe('price');
+      expect(state.order).toBe('desc');
     });
   });
 

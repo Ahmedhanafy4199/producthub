@@ -1,12 +1,14 @@
 /**
  * ProductsPage - the main product listing page
  * Contains: filter bar, sort dropdown, product grid, and pagination
- * Triggers data fetch whenever search, category, sort, or page changes
+ * Syncs search/filter/sort/page state with URL search params for refresh persistence
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import {
   loadProducts,
+  syncFiltersFromUrl,
   selectProducts, selectProductsLoading, selectProductsError,
   selectSearchQuery, selectSelectedCategory,
   selectSortBy, selectOrder, selectCurrentPage,
@@ -19,6 +21,8 @@ import LoadingSkeleton from '../components/common/LoadingSkeleton';
 
 const ProductsPage = () => {
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const products = useSelector(selectProducts);
   const loading = useSelector(selectProductsLoading);
   const error = useSelector(selectProductsError);
@@ -28,10 +32,49 @@ const ProductsPage = () => {
   const order = useSelector(selectOrder);
   const currentPage = useSelector(selectCurrentPage);
 
-  // Re-fetch whenever any filter/sort/page state changes
+  // ── hydrated: false until URL params have been synced into Redux ──
+  // Using useState (not useRef) so that setting it to true triggers a re-render
+  // and the fetch useEffect below can run with the correct filter values.
+  const [hydrated, setHydrated] = useState(false);
+
+  // ── Step 1: Read URL params once on mount and hydrate Redux state ──
   useEffect(() => {
+    const q         = searchParams.get('q')        || '';
+    const category  = searchParams.get('category') || '';
+    const urlSortBy = searchParams.get('sortBy')   || 'id';
+    const urlOrder  = searchParams.get('order')    || 'asc';
+    const page      = parseInt(searchParams.get('page'), 10) || 1;
+
+    const hasParams = q || category || urlSortBy !== 'id' || urlOrder !== 'asc' || page > 1;
+    if (hasParams) {
+      // Restore all filter state from URL — this triggers a Redux state update
+      dispatch(syncFiltersFromUrl({ query: q, category, sortBy: urlSortBy, order: urlOrder, page }));
+    }
+
+    // Mark hydration done — triggers re-render so Step 3 can fire with correct state
+    setHydrated(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Step 2: Write URL params whenever Redux filter state changes (skip before hydrated) ──
+  useEffect(() => {
+    if (!hydrated) return;
+    const params = {};
+    if (searchQuery)      params.q        = searchQuery;
+    if (selectedCategory) params.category = selectedCategory;
+    if (sortBy !== 'id')  params.sortBy   = sortBy;
+    if (order !== 'asc')  params.order    = order;
+    if (currentPage > 1)  params.page     = String(currentPage);
+    setSearchParams(params, { replace: true });
+  }, [searchQuery, selectedCategory, sortBy, order, currentPage, hydrated, setSearchParams]);
+
+  // ── Step 3: Fetch products — only after hydration is done ──
+  // On refresh: waits for Step 1 to restore filter state, then fetches with correct values.
+  // On normal navigation: hydrated=true immediately, so this runs normally.
+  useEffect(() => {
+    if (!hydrated) return;
     dispatch(loadProducts({ page: currentPage, sortBy, order, category: selectedCategory, query: searchQuery }));
-  }, [dispatch, currentPage, sortBy, order, selectedCategory, searchQuery]);
+  }, [dispatch, hydrated, currentPage, sortBy, order, selectedCategory, searchQuery]);
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -82,3 +125,4 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
+

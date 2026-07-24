@@ -126,6 +126,15 @@ const productsSlice = createSlice({
     clearError(state) {
       state.error = null;
     },
+    /** Restore all filter/search/sort/page state from URL params at once (no page reset) */
+    syncFiltersFromUrl(state, action) {
+      const { query, category, sortBy, order, page } = action.payload;
+      if (query   !== undefined) state.searchQuery      = query;
+      if (category !== undefined) state.selectedCategory = category;
+      if (sortBy   !== undefined) state.sortBy           = sortBy;
+      if (order    !== undefined) state.order            = order;
+      if (page     !== undefined) state.currentPage      = page;
+    },
   },
   extraReducers: (builder) => {
     // ── Load Products ──
@@ -177,6 +186,7 @@ export const {
   setPage,
   clearSelectedProduct,
   clearError,
+  syncFiltersFromUrl,
 } = productsSlice.actions;
 
 // ─── Selectors ───────────────────────────────────────────────────────────────
